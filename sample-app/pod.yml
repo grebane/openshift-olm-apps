@@ -6,7 +6,7 @@ metadata:
     app: helloworld-go
 spec:
   containers:
-  - name: myfirstcontainer
+  - name: helloworld-go
     image: image-registry.openshift-image-registry.svc:5000/grebane/hello-openshift
     env:
       # learn about the downward api https://kubernetes.io/docs/tasks/inject-data-application/environment-variable-expose-pod-information/#the-downward-api

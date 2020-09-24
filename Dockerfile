@@ -1,30 +1,15 @@
- # Use the official Golang image to create a build artifact.
- # This is based on Debian and sets the GOPATH to /go.
- # https://hub.docker.com/_/golang
- FROM golang:1.14 as builder
+# https://docs.docker.com/engine/reference/builder/
 
- # Copy local code to the container image.
- WORKDIR /app
+# step 1 - build image
+FROM golang:1.15.1-alpine AS builder
 
- # Retrieve application dependencies using go modules.
- # Allows container builds to reuse downloaded dependencies.
- COPY go.* ./
- RUN go mod download
+COPY helloworld.go .
 
- # Copy local code to the container image.
- COPY . ./
+RUN go build -o helloworld-go ./helloworld.go
 
- # Build the binary.
- # -mod=readonly ensures immutable go.mod and go.sum in container builds.
- RUN CGO_ENABLED=0 GOOS=linux go build -mod=readonly  -v -o helloworld
+# step 2 - run image
+FROM alpine:3.12.0 AS runner
+# Copy our static executable.
+COPY --from=builder /go/helloworld-go /usr/bin/helloworld-go
 
- # Use a Docker multi-stage build to create a lean production image.
- # https://docs.docker.com/develop/develop-images/multistage-build/#use-multi-stage-builds
- FROM alpine:3
- RUN apk add --no-cache ca-certificates
-
- # Copy the binary to the production image from the builder stage.
- COPY --from=builder /app/helloworld /helloworld
-
- # Run the web service on container startup.
- CMD ["/helloworld"]
+CMD ["/usr/bin/helloworld-go"]
