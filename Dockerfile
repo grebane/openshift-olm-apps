@@ -16,7 +16,7 @@
 
  # Build the binary.
  # -mod=readonly ensures immutable go.mod and go.sum in container builds.
- RUN CGO_ENABLED=0 GOOS=linux go build -mod=readonly  -v -o helloworld
+ RUN CGO_ENABLED=0 GOOS=linux go build -mod=readonly  -v -o helloworld-go
 
  # Use a Docker multi-stage build to create a lean production image.
  # https://docs.docker.com/develop/develop-images/multistage-build/#use-multi-stage-builds
@@ -24,7 +24,7 @@
  RUN apk add --no-cache ca-certificates
 
  # Copy the binary to the production image from the builder stage.
- COPY --from=builder /app/helloworld /helloworld
+ COPY --from=builder /app/helloworld-go /helloworld-go
 
  # Run the web service on container startup.
- CMD ["/helloworld"]
+ CMD ["/helloworld-go"]
